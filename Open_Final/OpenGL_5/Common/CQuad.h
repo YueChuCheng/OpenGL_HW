@@ -16,7 +16,7 @@ public:
 	void update(float dt, vec4 vLightPos, color4 vLightI);
 	void update(float dt, const LightSource &Lights);
 	void update(float dt);
-
+	void setLightNUM(int num);
 	GLuint getShaderHandle() { return _vbo; }
 	void renderWithFlatShading(vec4 vLightPos, color4 vLight);//  vLightI: Light Intensity
 	void renderWithGouraudShading(vec4 vLightPos, color4 vLight);//  vLightI: Light Intensity

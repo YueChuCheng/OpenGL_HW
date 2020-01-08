@@ -9,7 +9,7 @@
 
 
 #define SPACE_KEY 32
-#define SCREEN_SIZE 800
+#define SCREEN_SIZE 600
 #define HALF_SIZE SCREEN_SIZE /2 
 #define VP_HALFWIDTH  20.0f
 #define VP_HALFHEIGHT 20.0f
@@ -34,10 +34,19 @@ C2DBTN* CBtn[4];
 GLfloat g_fRadius = 40.0; //視覺範圍
 GLfloat g_fTheta = 60.0f * DegreesToRadians;
 GLfloat g_fPhi = 45.0f * DegreesToRadians;
+GLfloat g_fCameraMoveX = 0.f;				// for camera movment
+GLfloat g_fCameraMoveY = 7.0f;				// for camera movment
+GLfloat g_fCameraMoveZ = 0.f;				// for camera movment
+mat4	g_matMoveDir;		// 鏡頭移動方向
+point4  g_MoveDir;
+point4  g_at;				// 鏡頭觀看方向
+point4  g_eye;				// 鏡頭位置
+
+
 
 //camera
-point4  eye(0.0f, 5.0f, 0.0f, 1.0f);
-point4  at(g_fRadius* sin(g_fTheta)* sin(g_fPhi), g_fRadius* cos(g_fTheta), g_fRadius* sin(g_fTheta)* cos(g_fPhi), 1.0f);
+point4  eye(g_fRadius* sin(g_fTheta)* sin(g_fPhi), g_fRadius* cos(g_fTheta), g_fRadius* sin(g_fTheta)* cos(g_fPhi), 1.0f);
+point4  at(0.0f, 0.0f, 0.0f, 1.0f); 
 point4 g_vUp(0.0, 1.0, 0.0, 0.0);
 point4 front;
 point4 right;
@@ -78,7 +87,6 @@ LightSource  Light_center = {
 
 
 LightSource  _Light1 = {
-
 	color4(0.0, 0.0, 0.0, 1.0f), // ambient 
 	color4(1.0, 0.0, 0.0, 1.0f), // diffuse
 	color4(0.0, 0.0, 0.0, 1.0f), // specular
@@ -87,7 +95,7 @@ LightSource  _Light1 = {
 	vec3(10.0f, 0.0f, 10.0f),		  //spotTarget
 	vec3(0.0, 0.0, -10.0f),			  //spotDirection
 	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
-	0.9f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
+	0.95f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
 	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
 	1	,	// constantAttenuation	(a + bd + cd^2)^-1 中的 a, d 為光源到被照明點的距離
 	0	,	// linearAttenuation	    (a + bd + cd^2)^-1 中的 b
@@ -102,9 +110,9 @@ LightSource  _Light2 = {
 	point4(-10.4, 17.0, 6.0f, 1.0f),   // position
 	point4(0.0f, 0.0f, 0.0f, 1.0f),   // halfVector
 	vec3(10.0f, 0.0f, 10.0f),		  //spotTarget
-	vec3(-10.4, 17.0, 6.0f),			  //spotDirection
+	vec3(-10.4, 0.0, 6.0f),			  //spotDirection
 	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
-	0.9f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
+	0.95f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
 	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
 	1	,	// constantAttenuation	(a + bd + cd^2)^-1 中的 a, d 為光源到被照明點的距離
 	0	,	// linearAttenuation	    (a + bd + cd^2)^-1 中的 b
@@ -121,7 +129,7 @@ LightSource  _Light3 = {
 	vec3(10.0f, 0.0f, 10.0f),		  //spotTarget
 	vec3(10.4, 0.0, 6.0f),			  //spotDirection
 	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
-	0.9f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
+	0.95f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
 	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
 	1	,	// constantAttenuation	(a + bd + cd^2)^-1 中的 a, d 為光源到被照明點的距離
 	0	,	// linearAttenuation	    (a + bd + cd^2)^-1 中的 b
@@ -152,9 +160,6 @@ void init( void )
 	camera->updatePerspective(60.0, (GLfloat)SCREEN_SIZE / (GLfloat)SCREEN_SIZE, 1.0, 1000.0);
 	
 
-
-	
-
 	CFloor = new CSmoothQuad(GRID_SIZE);
 	CFloor->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	CFloor->setKaKdKsShini(0, 0.8f, 0.5f, 1);
@@ -178,9 +183,10 @@ void init( void )
 	vT.x = -20.0f; vT.y = 20.0f; vT.z = 0;
 	mxT = Translate(vT);
 	CQ_leftWall = new CQuad;
-	CQ_leftWall->setNormal(vec3(-1.0, 0.0, 0.0));
+	//CQ_leftWall->setNormal(vec3(-1.0, 0.0, 0.0));
 	CQ_leftWall->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	CQ_leftWall->setShadingMode(GOURAUD_SHADING);
+	CQ_leftWall->setLightNUM(1);
 	CQ_leftWall->setShader();
 	CQ_leftWall->setColor(vec4(0.6f));
 	CQ_leftWall->setTRSMatrix(mxT * RotateZ(-90.0f) * Scale(40.0f, 1, 40.0f));
@@ -190,9 +196,10 @@ void init( void )
 	vT.x = 20.0f; vT.y = 20.0f; vT.z = 0;
 	mxT = Translate(vT);
 	CQ_rightWall = new CQuad;
-	CQ_rightWall->setNormal(vec3(1.0, 0.0, 0.0));
+	//CQ_rightWall->setNormal(vec3(1.0, 0.0, 0.0));
 	CQ_rightWall->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	CQ_rightWall->setShadingMode(GOURAUD_SHADING);
+	CQ_rightWall->setLightNUM(1);
 	CQ_rightWall->setShader();
 	CQ_rightWall->setColor(vec4(0.6f));
 	CQ_rightWall->setTRSMatrix(mxT * RotateZ(90.0f) * Scale(40.0f, 1, 40.0f));
@@ -202,9 +209,10 @@ void init( void )
 	vT.x = 0.0f; vT.y = 20.0f; vT.z = 20.0f;
 	mxT = Translate(vT);
 	CQ_frontWall = new CQuad;
-	CQ_frontWall->setNormal(vec3(0.0, 0.0, 1.0));
+	//CQ_frontWall->setNormal(vec3(0.0, 0.0, 1.0));
 	CQ_frontWall->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	CQ_frontWall->setShadingMode(GOURAUD_SHADING);
+	CQ_frontWall->setLightNUM(1);
 	CQ_frontWall->setShader();
 	CQ_frontWall->setColor(vec4(0.6f));
 	CQ_frontWall->setTRSMatrix(mxT * RotateX(-90.0f) * Scale(40.0f, 1, 40.0f));
@@ -214,9 +222,10 @@ void init( void )
 	vT.x = 0.0f; vT.y = 20.0f; vT.z = -20.0f;
 	mxT = Translate(vT);
 	CQ_backWall = new CQuad;
-	CQ_backWall->setNormal(vec3(0.0, 0.0, -1.0));
+	//CQ_backWall->setNormal(vec3(0.0, 0.0, -1.0));
 	CQ_backWall->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	CQ_backWall->setShadingMode(GOURAUD_SHADING);
+	CQ_backWall->setLightNUM(1);
 	CQ_backWall->setShader();
 	CQ_backWall->setColor(vec4(0.6f));
 	CQ_backWall->setTRSMatrix(mxT * RotateX(90.0f) * Scale(40.0f, 1, 40.0f));
@@ -371,9 +380,20 @@ void UpdateLightPosition(float dt)
 void onFrameMove(float delta)
 {
 
+	// for camera
+	g_at = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi) + g_fCameraMoveX,
+		g_fRadius * cos(g_fTheta) + g_fCameraMoveY,
+		g_fRadius * sin(g_fTheta) * cos(g_fPhi) + g_fCameraMoveZ,
+		1.0f);
+	g_eye = vec4(g_fCameraMoveX, g_fCameraMoveY, g_fCameraMoveZ, 1.0f);	//第一人稱視角
+	auto camera = CCamera::getInstance();
+	camera->updateViewLookAt(g_eye, g_at);
+
+
+
 	mat4 mvx;	// view matrix & projection matrix
 	bool bVDirty;	// view 與 projection matrix 是否需要更新給物件
-	auto camera = CCamera::getInstance();
+	
 	mvx = camera->getViewMatrix(bVDirty);
 	if (bVDirty) {
 		CFloor->setViewMatrix(mvx);
@@ -420,12 +440,12 @@ void onFrameMove(float delta)
 void Win_Keyboard( unsigned char key, int x, int y )
 {
     switch ( key ) {
-	case 65://A
+	/*case 65://A
 	case 97://a
 		//燈光旋轉
 		g_bAutoRotating = !g_bAutoRotating;
 		break;
-
+		*/
 	case 82: //R
 		if (Light_resulte[0].diffuse.x < 1.0f)
 			Light_resulte[0].diffuse.x += 0.05f;
@@ -465,6 +485,72 @@ void Win_Keyboard( unsigned char key, int x, int y )
 			Light_resulte[0].diffuse.z -= 0.05f;
 		else
 			Light_resulte[0].diffuse.z = 0.0f;
+		break;
+
+
+	case 'W':
+	case 'w':
+		g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
+		g_MoveDir = normalize(g_MoveDir);
+		g_matMoveDir = Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
+		if (g_fCameraMoveX <= 18.5f && g_fCameraMoveX >= -18.5f && g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f) {	//限制空間
+			g_fCameraMoveX += (g_matMoveDir._m[0][3] * 0.2f);
+			g_fCameraMoveZ += (g_matMoveDir._m[2][3] * 0.2f);
+		}
+		else {	// 修正卡牆
+			if (g_fCameraMoveX > 18.5) g_fCameraMoveX = 18.5f;
+			else if (g_fCameraMoveX < -18.5) g_fCameraMoveX = -18.5f;
+			if (g_fCameraMoveZ > 18.5) g_fCameraMoveZ = 18.5f;
+			else if (g_fCameraMoveZ < -18.5) g_fCameraMoveZ = -18.5f;
+		}
+		break;
+	case 'S':
+	case 's':
+		g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
+		g_MoveDir = normalize(g_MoveDir);
+		g_matMoveDir = Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
+		if (g_fCameraMoveX <= 18.5f && g_fCameraMoveX >= -18.5f && g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f) {	//限制空間
+			g_fCameraMoveX -= (g_matMoveDir._m[0][3] * 0.2f);
+			g_fCameraMoveZ -= (g_matMoveDir._m[2][3] * 0.2f);
+		}
+		else {	// 修正卡牆
+			if (g_fCameraMoveX > 18.5) g_fCameraMoveX = 18.5f;
+			else if (g_fCameraMoveX < -18.5) g_fCameraMoveX = -18.5f;
+			if (g_fCameraMoveZ > 18.5) g_fCameraMoveZ = 18.5f;
+			else if (g_fCameraMoveZ < -18.5) g_fCameraMoveZ = -18.5f;
+		}
+		break;
+	case 'A':
+	case 'a':
+		g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
+		g_MoveDir = normalize(g_MoveDir);
+		g_matMoveDir = RotateY(90.f) * Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
+		if (g_fCameraMoveX <= 18.5f && g_fCameraMoveX >= -18.5f && g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f) {	//限制空間
+			g_fCameraMoveX += (g_matMoveDir._m[0][3] * 0.2f);
+			g_fCameraMoveZ += (g_matMoveDir._m[2][3] * 0.2f);
+		}
+		else {	// 修正卡牆
+			if (g_fCameraMoveX > 18.5) g_fCameraMoveX = 18.5f;
+			else if (g_fCameraMoveX < -18.5) g_fCameraMoveX = -18.5f;
+			if (g_fCameraMoveZ > 18.5) g_fCameraMoveZ = 18.5f;
+			else if (g_fCameraMoveZ < -18.5) g_fCameraMoveZ = -18.5f;
+		}
+		break;
+	case 'D':
+	case 'd':
+		g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
+		g_MoveDir = normalize(g_MoveDir);
+		g_matMoveDir = RotateY(90.f) * Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
+		if (g_fCameraMoveX <= 18.5f && g_fCameraMoveX >= -18.5f && g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f) {	//限制空間
+			g_fCameraMoveX -= (g_matMoveDir._m[0][3] * 0.2f);
+			g_fCameraMoveZ -= (g_matMoveDir._m[2][3] * 0.2f);
+		}
+		else {	// 修正卡牆
+			if (g_fCameraMoveX > 18.5) g_fCameraMoveX = 18.5f;
+			else if (g_fCameraMoveX < -18.5) g_fCameraMoveX = -18.5f;
+			if (g_fCameraMoveZ > 18.5) g_fCameraMoveZ = 18.5f;
+			else if (g_fCameraMoveZ < -18.5) g_fCameraMoveZ = -18.5f;
+		}
 		break;
 
 
@@ -661,7 +747,7 @@ int main( int argc, char **argv )
 	glutInitContextVersion(3, 2);
 	glutInitContextProfile(GLUT_CORE_PROFILE);
 
-	glutCreateWindow("Lighting & Camera Control");
+	glutCreateWindow("ShowRoom");
 
 	glewExperimental = GL_TRUE;
 	glewInit();

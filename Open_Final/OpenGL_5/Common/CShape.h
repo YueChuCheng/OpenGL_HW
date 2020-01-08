@@ -40,14 +40,18 @@ protected:
 	
 	GLuint _uiShininess;
 	
+	point4  _uiLightPosition[LIGHT_NUM];	 // 光源在世界座標的位置
+	GLuint _uiLightDir[LIGHT_NUM]; //光源目標在shader的位置
 	GLuint _uiLightInView[LIGHT_NUM]; //光源在shader的位置
 	GLuint _uiAmbient[LIGHT_NUM]; //light's ambient 與 object's ambient 與 ka的乘積
 	GLuint _uiDiffuse[LIGHT_NUM];
+	GLuint _uiDiffuseProduct[LIGHT_NUM];
 	GLuint _uiSpecular[LIGHT_NUM];
 	GLuint _uiLighting[LIGHT_NUM];
-	float _uicutoff[LIGHT_NUM];
+	GLuint _uicutoff[LIGHT_NUM];
 	GLuint _uiLightNUM; //有幾盞燈
 
+	point4 _vLightDir[LIGHT_NUM]; //光源目標在世界座標的位置
 	point4 _vLightInView[LIGHT_NUM]; //光源在世界座標的位置
 	color4 _ambientProduct[LIGHT_NUM];
 	color4 _diffuseProduct[LIGHT_NUM];

@@ -128,6 +128,7 @@ void CQuad::update(float dt, const LightSource* Lights)
 	for (int i = 0; i < LIGHT_NUM; i++)
 	{
 		_vLightInView[i] = _mxView * Lights[i].position;		// 將 Light 轉換到鏡頭座標再傳入
+		_vLightDir[i] = _mxView * Lights[i].spotDirection;
 		// 算出 AmbientProduct DiffuseProduct 與 SpecularProduct 的內容
 		_ambientProduct[i] = _material.ka * _material.ambient * Lights[i].ambient;
 		_diffuseProduct[i] = _material.kd * _material.diffuse * Lights[i].diffuse ;
@@ -192,5 +193,13 @@ void CQuad::draw() {
 void CQuad::drawW() {
 	drawingWithoutSetShader();
 	glDrawArrays(GL_TRIANGLES, 0, POINT_NUM);
+
+}
+
+
+
+void CQuad::setLightNUM(int num) {
+
+	_vLightNUM = num;
 
 }

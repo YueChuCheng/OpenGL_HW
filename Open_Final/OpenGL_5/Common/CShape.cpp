@@ -121,16 +121,16 @@ void CShape::setShader(GLuint shaderHandle) {
 	glUniform4fv(_uiAmbient[3], 1, _ambientProduct[3]);
 		
 
-	_uiDiffuse[0] = glGetUniformLocation(_vbo, "DiffuseProduct[0]");
+	_uiDiffuseProduct[0] = glGetUniformLocation(_vbo, "DiffuseProduct[0]");
 	glUniform4fv(_uiDiffuse[0], 1, _diffuseProduct[0]);
 		
-	_uiDiffuse[1] = glGetUniformLocation(_vbo, "DiffuseProduct[1]");
+	_uiDiffuseProduct[1] = glGetUniformLocation(_vbo, "DiffuseProduct[1]");
 	glUniform4fv(_uiDiffuse[1], 1, _diffuseProduct[1]);
 
-	_uiDiffuse[2] = glGetUniformLocation(_vbo, "DiffuseProduct[2]");
+	_uiDiffuseProduct[2] = glGetUniformLocation(_vbo, "DiffuseProduct[2]");
 	glUniform4fv(_uiDiffuse[2], 1, _diffuseProduct[2]);
 
-	_uiDiffuse[3] = glGetUniformLocation(_vbo, "DiffuseProduct[3]");
+	_uiDiffuseProduct[3] = glGetUniformLocation(_vbo, "DiffuseProduct[3]");
 	glUniform4fv(_uiDiffuse[3], 1, _diffuseProduct[3]);
 		
 	_uiSpecular[0] = glGetUniformLocation(_vbo, "SpecularProduct[0]");
@@ -168,6 +168,19 @@ void CShape::setShader(GLuint shaderHandle) {
 
 	_uicutoff[3] = glGetUniformLocation(_vbo, "Cutoff[3]");
 	glUniform1f(_uicutoff[3], _cutoff[3]);
+
+
+	_uiLightDir[0] = glGetUniformLocation(_vbo, "vlightDir[0]");
+	glUniform4fv(_uiLightDir[0], 1, _vLightDir[0]);
+
+	_uiLightDir[1] = glGetUniformLocation(_vbo, "vlightDir[1]");
+	glUniform4fv(_uiLightDir[0], 1, _vLightDir[1]);
+
+	_uiLightDir[2] = glGetUniformLocation(_vbo, "vlightDir[2]");
+	glUniform4fv(_uiLightDir[0], 1, _vLightDir[2]);
+
+	_uiLightDir[3] = glGetUniformLocation(_vbo, "vlightDir[3]");
+	glUniform4fv(_uiLightDir[0], 1, _vLightDir[3]);
 		
 		
 
@@ -198,7 +211,7 @@ void CShape::drawingSetShader() {
 	{
 		glUniform4fv(_uiLightInView[i], 1, _vLightInView[i]);
 		glUniform4fv(_uiAmbient[i], 1, _ambientProduct[i]);
-		glUniform4fv(_uiDiffuse[i], 1, _diffuseProduct[i]);
+		glUniform4fv(_uiDiffuseProduct[i], 1, _diffuseProduct[i]);
 		glUniform4fv(_uiSpecular[i], 1, _specularProduct[i]);
 		glUniform1i(_uiLighting[i], _iLighting[i]);
 		glUniform1f(_uicutoff[i], _cutoff[i]);
@@ -233,7 +246,7 @@ void CShape::drawingWithoutSetShader()
 	{
 		glUniform4fv(_uiLightInView[i], 1, _vLightInView[i]);
 		glUniform4fv(_uiAmbient[i], 1, _ambientProduct[i]);
-		glUniform4fv(_uiDiffuse[i], 1, _diffuseProduct[i]);
+		glUniform4fv(_uiDiffuseProduct[i], 1, _diffuseProduct[i]);
 		glUniform4fv(_uiSpecular[i], 1, _specularProduct[i]);
 		glUniform1i(_uiLighting[i], _iLighting[i]);
 		glUniform1f(_uicutoff[i], _cutoff[i]);

@@ -66,7 +66,7 @@ void main()
 
 				//V Diffuse Color : Id = Kd * Material.diffuse * Ld * (L dot N)
 				if(Cutoff[i] > 0.0f) //spot light
-					diffuse += pow(fLdotN , 10) * DiffuseProduct[i];
+					diffuse += pow(fLdotN , 40) * DiffuseProduct[i];
 				else
 					diffuse += fLdotN * DiffuseProduct[i]  ;
 

@@ -95,7 +95,7 @@ LightSource  _Light1 = {
 	vec3(10.0f, 0.0f, 10.0f),		  //spotTarget
 	vec3(0.0, 0.0, -10.0f),			  //spotDirection
 	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
-	0.95f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
+	0.8f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
 	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
 	1	,	// constantAttenuation	(a + bd + cd^2)^-1 中的 a, d 為光源到被照明點的距離
 	0	,	// linearAttenuation	    (a + bd + cd^2)^-1 中的 b
@@ -112,7 +112,7 @@ LightSource  _Light2 = {
 	vec3(10.0f, 0.0f, 10.0f),		  //spotTarget
 	vec3(-10.4, 0.0, 6.0f),			  //spotDirection
 	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
-	0.95f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
+	0.8f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
 	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
 	1	,	// constantAttenuation	(a + bd + cd^2)^-1 中的 a, d 為光源到被照明點的距離
 	0	,	// linearAttenuation	    (a + bd + cd^2)^-1 中的 b
@@ -129,7 +129,7 @@ LightSource  _Light3 = {
 	vec3(10.0f, 0.0f, 10.0f),		  //spotTarget
 	vec3(10.4, 0.0, 6.0f),			  //spotDirection
 	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
-	0.95f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
+	0.8f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
 	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
 	1	,	// constantAttenuation	(a + bd + cd^2)^-1 中的 a, d 為光源到被照明點的距離
 	0	,	// linearAttenuation	    (a + bd + cd^2)^-1 中的 b
@@ -304,9 +304,9 @@ void init( void )
 
 	vT.x = 0.0; vT.y = 1.0; vT.z = 0.0f;
 	ObjModel = new ModelPool("Model/TeaPot.obj");
-	ObjModel->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	ObjModel->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(1.85f, 1.85f, 0.85f, 1), vec4(1.5f, 1.5f, 1.5f, 1.5f));
 	ObjModel->setKaKdKsShini(0, 0.8f, 0.5f, 1);
-	ObjModel->setLightNUM(1);
+	ObjModel->setLightNUM(4);
 	ObjModel->setShader();
 	mxT = Translate(vT);
 	ObjModel->setTRSMatrix(mxT* Scale(2.0f, 2.0f, 2.0f));
@@ -488,71 +488,7 @@ void Win_Keyboard( unsigned char key, int x, int y )
 		break;
 
 
-	case 'W':
-	case 'w':
-		g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
-		g_MoveDir = normalize(g_MoveDir);
-		g_matMoveDir = Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
-		if (g_fCameraMoveX <= 18.5f && g_fCameraMoveX >= -18.5f && g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f) {	//限制空間
-			g_fCameraMoveX += (g_matMoveDir._m[0][3] * 0.2f);
-			g_fCameraMoveZ += (g_matMoveDir._m[2][3] * 0.2f);
-		}
-		else {	// 修正卡牆
-			if (g_fCameraMoveX > 18.5) g_fCameraMoveX = 18.5f;
-			else if (g_fCameraMoveX < -18.5) g_fCameraMoveX = -18.5f;
-			if (g_fCameraMoveZ > 18.5) g_fCameraMoveZ = 18.5f;
-			else if (g_fCameraMoveZ < -18.5) g_fCameraMoveZ = -18.5f;
-		}
-		break;
-	case 'S':
-	case 's':
-		g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
-		g_MoveDir = normalize(g_MoveDir);
-		g_matMoveDir = Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
-		if (g_fCameraMoveX <= 18.5f && g_fCameraMoveX >= -18.5f && g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f) {	//限制空間
-			g_fCameraMoveX -= (g_matMoveDir._m[0][3] * 0.2f);
-			g_fCameraMoveZ -= (g_matMoveDir._m[2][3] * 0.2f);
-		}
-		else {	// 修正卡牆
-			if (g_fCameraMoveX > 18.5) g_fCameraMoveX = 18.5f;
-			else if (g_fCameraMoveX < -18.5) g_fCameraMoveX = -18.5f;
-			if (g_fCameraMoveZ > 18.5) g_fCameraMoveZ = 18.5f;
-			else if (g_fCameraMoveZ < -18.5) g_fCameraMoveZ = -18.5f;
-		}
-		break;
-	case 'A':
-	case 'a':
-		g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
-		g_MoveDir = normalize(g_MoveDir);
-		g_matMoveDir = RotateY(90.f) * Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
-		if (g_fCameraMoveX <= 18.5f && g_fCameraMoveX >= -18.5f && g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f) {	//限制空間
-			g_fCameraMoveX += (g_matMoveDir._m[0][3] * 0.2f);
-			g_fCameraMoveZ += (g_matMoveDir._m[2][3] * 0.2f);
-		}
-		else {	// 修正卡牆
-			if (g_fCameraMoveX > 18.5) g_fCameraMoveX = 18.5f;
-			else if (g_fCameraMoveX < -18.5) g_fCameraMoveX = -18.5f;
-			if (g_fCameraMoveZ > 18.5) g_fCameraMoveZ = 18.5f;
-			else if (g_fCameraMoveZ < -18.5) g_fCameraMoveZ = -18.5f;
-		}
-		break;
-	case 'D':
-	case 'd':
-		g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
-		g_MoveDir = normalize(g_MoveDir);
-		g_matMoveDir = RotateY(90.f) * Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
-		if (g_fCameraMoveX <= 18.5f && g_fCameraMoveX >= -18.5f && g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f) {	//限制空間
-			g_fCameraMoveX -= (g_matMoveDir._m[0][3] * 0.2f);
-			g_fCameraMoveZ -= (g_matMoveDir._m[2][3] * 0.2f);
-		}
-		else {	// 修正卡牆
-			if (g_fCameraMoveX > 18.5) g_fCameraMoveX = 18.5f;
-			else if (g_fCameraMoveX < -18.5) g_fCameraMoveX = -18.5f;
-			if (g_fCameraMoveZ > 18.5) g_fCameraMoveZ = 18.5f;
-			else if (g_fCameraMoveZ < -18.5) g_fCameraMoveZ = -18.5f;
-		}
-		break;
-
+	
 
 	case 80://P
 	case 112://p
@@ -626,86 +562,76 @@ void Win_Mouse(int button, int state, int x, int y) {
 }
 //----------------------------------------------------------------------------
 void Win_SpecialKeyboard(int key, int x, int y) {
-	
-	front = normalize(at-eye);
-	right = normalize(cross(front, g_vUp));
 	switch (key)
 	{
 	case GLUT_KEY_UP:
-		if (eye.x+ front.x<18.0f && eye.x + front.x > -18.0f)
-		{
-			eye += point4(front.x, 0.0f, 0.0f, 0.0f) * 3.0f;
-			at += point4(front.x, 0.0f, 0.0f, 0.0f) * 3.0f;
-		}
+		g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
+		g_MoveDir = normalize(g_MoveDir);
+		g_matMoveDir = Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
+		if (g_fCameraMoveX <= 18.5f && g_fCameraMoveX >= -18.5f && g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f) {	//限制空間
 
-		if ( eye.z + front.z < 18.0f && eye.z + front.z > -18.0f)
-		{
-			eye += point4(0.0f, 0.0f, front.z, 0.0f) * 3.0f;
-			at += point4(0.0f, 0.0f, front.z, 0.0f) * 3.0f;
+			if (g_fCameraMoveX <= 18.5f && g_fCameraMoveX >= -18.5f)
+				g_fCameraMoveX += (g_matMoveDir._m[0][3] * 0.5f);
+			if (g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f)
+				g_fCameraMoveZ += (g_matMoveDir._m[2][3] * 0.5f);
 		}
-		
-		
+		else {	// 修正卡牆
+			if (g_fCameraMoveX > 18.5) g_fCameraMoveX = 18.5f;
+			else if (g_fCameraMoveX < -18.5) g_fCameraMoveX = -18.5f;
+			if (g_fCameraMoveZ > 18.5) g_fCameraMoveZ = 18.5f;
+			else if (g_fCameraMoveZ < -18.5) g_fCameraMoveZ = -18.5f;
+		}
 		break;
 	case GLUT_KEY_DOWN:
-		if (eye.x - front.x<18.0f && eye.x - front.x > -18.0f)
-		{
-			eye -= point4(front.x, 0.0f, 0.0f, 0.0f) * 3.0f;
-			at -= point4(front.x, 0.0f, 0.0f, 0.0f) * 3.0f;
+		g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
+		g_MoveDir = normalize(g_MoveDir);
+		g_matMoveDir = Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
+		if (g_fCameraMoveX <= 18.5f && g_fCameraMoveX >= -18.5f && g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f) {	//限制空間
+			g_fCameraMoveX -= (g_matMoveDir._m[0][3] * 0.5f);
+			g_fCameraMoveZ -= (g_matMoveDir._m[2][3] * 0.5f);
 		}
-
-		if (eye.z - front.z < 18.0f && eye.z - front.z > -18.0f)
-		{
-			eye -= point4(0.0f, 0.0f, front.z, 0.0f) * 3.0f;
-			at -= point4(0.0f, 0.0f, front.z, 0.0f) * 3.0f;
-		}
-		break;
-	case GLUT_KEY_LEFT:		// 目前按下的是向左方向鍵
-		
-		if (eye.x - right.x<18.0f && eye.x - right.x > -18.0f)
-		{
-			eye -= point4(right.x, 0.0f, 0.0f, 0.0f) * 3.0f;
-			at -= point4(right.x, 0.0f, 0.0f, 0.0f) * 3.0f;
-		}
-
-		if (eye.z - right.z < 18.0f && eye.z - right.z > -18.0f)
-		{
-			eye -= point4(0.0f, 0.0f, right.z, 0.0f) * 3.0f;
-			at -= point4(0.0f, 0.0f, right.z, 0.0f) * 3.0f;
-		}
-		
-		break;
-	case GLUT_KEY_RIGHT:	// 目前按下的是向右方向鍵
-		if (eye.x + right.x<18.0f && eye.x + right.x > -18.0f)
-		{
-			eye += point4(right.x, 0.0f, 0.0f, 0.0f) * 3.0f;
-			at += point4(right.x, 0.0f, 0.0f, 0.0f) * 3.0f;
-		}
-
-		if (eye.z + right.z < 18.0f && eye.z + right.z > -18.0f)
-		{
-			eye += point4(0.0f, 0.0f, right.z, 0.0f) * 3.0f;
-			at += point4(0.0f, 0.0f, right.z, 0.0f) * 3.0f;
+		else {	// 修正卡牆
+			if (g_fCameraMoveX > 18.5) g_fCameraMoveX = 18.5f;
+			else if (g_fCameraMoveX < -18.5) g_fCameraMoveX = -18.5f;
+			if (g_fCameraMoveZ > 18.5) g_fCameraMoveZ = 18.5f;
+			else if (g_fCameraMoveZ < -18.5) g_fCameraMoveZ = -18.5f;
 		}
 		break;
+	case GLUT_KEY_LEFT:
+		g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
+		g_MoveDir = normalize(g_MoveDir);
+		g_matMoveDir = RotateY(90.f) * Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
+		if (g_fCameraMoveX <= 18.5f && g_fCameraMoveX >= -18.5f && g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f) {	//限制空間
+			g_fCameraMoveX += (g_matMoveDir._m[0][3] * 0.5f);
+			g_fCameraMoveZ += (g_matMoveDir._m[2][3] * 0.5f);
+		}
+		else {	// 修正卡牆
+			if (g_fCameraMoveX > 18.5) g_fCameraMoveX = 18.5f;
+			else if (g_fCameraMoveX < -18.5) g_fCameraMoveX = -18.5f;
+			if (g_fCameraMoveZ > 18.5) g_fCameraMoveZ = 18.5f;
+			else if (g_fCameraMoveZ < -18.5) g_fCameraMoveZ = -18.5f;
+		}
+		break;
+	case GLUT_KEY_RIGHT:
+		g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
+		g_MoveDir = normalize(g_MoveDir);
+		g_matMoveDir = RotateY(90.f) * Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
+		if (g_fCameraMoveX <= 18.5f && g_fCameraMoveX >= -18.5f && g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f) {	//限制空間
+			g_fCameraMoveX -= (g_matMoveDir._m[0][3] * 0.5f);
+			g_fCameraMoveZ -= (g_matMoveDir._m[2][3] * 0.5f);
+		}
+		else {	// 修正卡牆
+			if (g_fCameraMoveX > 18.5) g_fCameraMoveX = 18.5f;
+			else if (g_fCameraMoveX < -18.5) g_fCameraMoveX = -18.5f;
+			if (g_fCameraMoveZ > 18.5) g_fCameraMoveZ = 18.5f;
+			else if (g_fCameraMoveZ < -18.5) g_fCameraMoveZ = -18.5f;
+		}
+		break;
+
 
 	default:
 		break;
 	}
-
-	if (eye.x > 18.0f)
-		eye.x = 17.9;
-
-	if (eye.x < -18.0f)
-		eye.x = -17.9;
-
-	if (eye.z > 18.0f)
-		eye.z = 17.9;
-
-	if (eye.z < -18.0f)
-		eye.z = -17.9;
-
-	auto camera = CCamera::getInstance();
-	camera->updateViewLookAt(eye, at);
 }
 
 //----------------------------------------------------------------------------

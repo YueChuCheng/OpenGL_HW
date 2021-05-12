@@ -539,7 +539,7 @@ void Win_Mouse(int button, int state, int x, int y) {
 			if (CBtn[i]->onTouch(pt)) //Ãö³¬¶}Ãö
 			{
 				if(Light_resulte[i + 1].spotCutoff==1.0f)
-					Light_resulte[i+1].spotCutoff = 0.95f;
+					Light_resulte[i+1].spotCutoff = 0.8f;
 				else
 					Light_resulte[i + 1].spotCutoff = 1.0f;
 			}
